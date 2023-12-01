@@ -11,9 +11,15 @@
 ;;show line numbers
 (global-display-line-numbers-mode t)
 
+;;maximize window
+(add-hook 'window-setup-hook 'toggle-frame-maximized)
 
 ;; font size
-(set-face-attribute 'default nil :height 100)
+(set-face-attribute 'default nil :height 120)
+
+;;set tabsize
+(setq c-default-style "linux"
+      c-basic-offset 4)
 
 ;;shortcuts
 (global-set-key (kbd "C-<tab>") 'other-window)
