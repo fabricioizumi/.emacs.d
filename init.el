@@ -167,6 +167,7 @@
 (add-hook 'c-mode-hook 'lsp)
 (add-hook 'c++-mode-hook 'lsp)
 
+(global-flycheck-mode 1)
 (setq gc-cons-threshold (* 100 1024 1024)
       read-process-output-max (* 1024 1024)
       treemacs-space-between-root-nodes nil
@@ -191,6 +192,17 @@
 (use-package helm-ag
   :ensure t)
 
+(use-package yasnippet-snippets
+  :ensure t)
+
+(use-package helm-projectile
+  :ensure t)
+
+(use-package modern-cpp-font-lock
+  :ensure t)
+
+(yas-global-mode 1)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -198,7 +210,8 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("60c23c3a831c9f28b10084e8642b7d987d33be3faee8f68d68d1cf6b171041da" "993aac313027a1d6e70d45b98e121492c1b00a0daa5a8629788ed7d523fe62c1" "3f1dcd824a683e0ab194b3a1daac18a923eed4dba5269eecb050c718ab4d5a26" default))
- '(package-selected-packages '(helm-ag ccls magit darcula-theme ace-window neotree try)))
+ '(package-selected-packages
+   '(helm-projectile helm-ag ccls magit darcula-theme ace-window neotree try)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
