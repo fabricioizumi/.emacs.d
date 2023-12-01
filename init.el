@@ -36,6 +36,7 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
+(electric-pair-mode 1)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
