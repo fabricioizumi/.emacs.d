@@ -140,19 +140,55 @@
    :ensure t 
    :config
     (add-to-list 'dashboard-item-generators
-                 `(project-status . ,(dashboard-project-status "/home/fabricio")))
+                 `(project-status . ,(dashboard-project-status "/home/fabricio/projetos/photo-frame-tv")))
     (add-to-list 'dashboard-items '(project-status) t)
     (setq dashboard-items '((project-status . 10)
                             (recents        . 10)
                             (agenda         . 10))))
   (dashboard-setup-startup-hook))
 
-(setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs helm-lsp
-    projectile hydra flycheck company avy helm-xref dap-mode))
+;; (setq package-selected-packages '(lsp-mode yasnippet lsp-treemacs helm-lsp
+;;     projectile hydra flycheck company avy helm-xref dap-mode))
 
-(when (cl-find-if-not #'package-installed-p package-selected-packages)
-  (package-refresh-contents)
-  (mapc #'package-install package-selected-packages))
+;; (when (cl-find-if-not #'package-installed-p package-selected-packages)
+;;   (package-refresh-contents)
+;;   (mapc #'package-install package-selected-packages))
+(use-package flycheck
+  :ensure t
+  )
+(use-package irony
+  :ensure t
+  :config
+  (progn
+    ;; If irony server was never installed, install it.
+    (unless (irony--find-server-executable) (call-interactively #'irony-install-server))
+
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+
+    ;; Use compilation database first, clang_complete as fallback.
+    (setq-default irony-cdb-compilation-databases '(irony-cdb-libclang
+                                                      irony-cdb-clang-complete))
+
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+  ))
+
+  ;; I use irony with company to get code completion.
+(use-package company-irony
+    :ensure t
+    :config
+    (progn
+      (eval-after-load 'company '(add-to-list 'company-backends 'company-irony))))
+
+;; use irony with flycheck to get real-time syntax checking.
+(use-package flycheck-irony
+    :ensure t
+    :config
+    (progn
+      (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))))
+
+(use-package helm-xref
+  :ensure t)
 
 ;; sample `helm' configuration use https://github.com/emacs-helm/helm/ for details
 (helm-mode)
@@ -162,32 +198,31 @@
 (define-key global-map [remap switch-to-buffer] #'helm-mini)
 
 (global-set-key (kbd "C-x a g") 'helm-do-grep-ag)
+(global-set-key (kbd "C-x g") 'magit-status)
+;; (which-key-mode)
+;; (add-hook 'c-mode-hook 'lsp)
+;; (add-hook 'c++-mode-hook 'lsp)
 
-(which-key-mode)
-(add-hook 'c-mode-hook 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
 
 (global-flycheck-mode 1)
-(setq gc-cons-threshold (* 100 1024 1024)
-      read-process-output-max (* 1024 1024)
-      treemacs-space-between-root-nodes nil
-      company-idle-delay 0.0
-      company-minimum-prefix-length 1
-      lsp-idle-delay 0.1)  ;; clangd is fast
+;; (setq gc-cons-threshold (* 100 1024 1024)
+;;       read-process-output-max (* 1024 1024)
+;;       treemacs-space-between-root-nodes nil
+;;       company-idle-delay 0.0
+;;       company-minimum-prefix-length 1
+;;       lsp-idle-delay 0.1)  ;; clangd is fast
 
-(with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
-  (require 'dap-cpptools)
-  (yas-global-mode))
-
-;; (use-package ccls
-;;   :ensure t
-;;   :config
-;;   (setq ccls-executable "ccls")
-;;   (setq lsp-prefer-flymake nil)
-;;   ;;(setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-;;   :hook ((c-mode c++-mode objc-mode) .
-;;          (lambda () (require 'ccls) (lsp))))
+;; (with-eval-after-load 'lsp-mode
+;;   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
+;;   (require 'dap-cpptools)
+;;   (yas-global-mode))
+(use-package ggtags
+  :ensure t
+  )
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
+              (ggtags-mode 1))))
 
 (use-package helm-ag
   :ensure t)
@@ -203,6 +238,7 @@
 
 (yas-global-mode 1)
 
+(global-set-key (kbd "C-x p l") 'helm-projectile-switch-project)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
